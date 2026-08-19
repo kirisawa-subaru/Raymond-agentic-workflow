@@ -5,7 +5,7 @@ description: Capture pre-compact context that automatic compaction systematicall
 
 # Session handoff
 
-Write a complementary session handoff to `~/.claude/session-handoff/<filename>.md`.
+Write a complementary session handoff to `$AGENT_HANDOFF_DIR/<filename>.md` (default `~/.agent/session-handoff/`).
 
 Automatic compaction is optimized for facts: files changed, errors fixed, pending tasks. What it systematically drops is everything *relational and epistemic* — how the conversation was being conducted, why decisions went the way they did, what's still alive outside the transcript, and how much each shipped claim deserves to be trusted. This skill captures exactly that complement.
 
@@ -13,7 +13,7 @@ Automatic compaction is optimized for facts: files changed, errors fixed, pendin
 
 `<YYYY-MM-DD-HHMM>_<cwd-slug>_<short-topic>.md`
 
-- `cwd-slug`: current cwd with `/` replaced by `-`, leading slash dropped. Example: `/Users/you/dev/my-project` → `-Users-you-dev-my-project` (matches the `~/.claude/projects/` directory convention).
+- `cwd-slug`: current cwd with `/` replaced by `-`, leading slash dropped. Example: `/Users/you/dev/my-project` → `-Users-you-dev-my-project`.
 - `short-topic`: 2–4 hyphenated words capturing what the session was about.
 - `YYYY-MM-DD-HHMM`: hour-minute precision so multiple handoffs in one day sort cleanly.
 

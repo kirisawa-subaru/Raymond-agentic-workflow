@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Continuous-execution hard gate (Claude Code Stop hook, registered globally in ~/.claude/settings.json) — companion to the batch-hook skill.
-# Sentinel: $CLAUDE_PROJECT_DIR/tmp/batch-active; first line = repo-relative path of the batch ledger.
+# Continuous-execution hard gate — companion to the batch-hook skill.
+# Register as your harness's end-of-turn stop-check (see adapters/); exit 2 + stderr = refuse stop, message fed back to the model.
+# Sentinel: <project root>/tmp/batch-active; first line = repo-relative path of the batch ledger.
+# Project root: $AGENT_PROJECT_DIR, else the harness-injected project dir, else $PWD.
 # Sentinel absent = fully transparent to the session (millisecond check, then pass).
 # Predicate: ledger still has unchecked checkboxes and no column-0 "BLOCKED:" line -> refuse stop (exit 2, stderr fed back to the model).
 # Exits: all boxes checked / column-0 BLOCKED trace / sentinel deleted. Always fail-open: on any config anomaly, pass — never trap the session.
 set -u
 
-ROOT="${CLAUDE_PROJECT_DIR:-$PWD}"
+ROOT="${AGENT_PROJECT_DIR:-${CLAUDE_PROJECT_DIR:-$PWD}}"
 SENTINEL="$ROOT/tmp/batch-active"
 
 cat >/dev/null  # consume the hook's stdin payload; this gate doesn't need it
