@@ -1,0 +1,5 @@
+{
+  "name": "agentic-workflow",
+  "description": "Six-component workflow system for long-horizon multi-agent development: planning memory, doc lifecycle, cross-model orchestration, unattended-batch hard gates, context continuity, report digestion.",
+  "version": "0.1.0"
+}
