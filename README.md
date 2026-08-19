@@ -22,7 +22,7 @@ Inline command examples in the procedures use POSIX syntax for brevity; where a 
 |---|---|---|
 | `track-project` | Executable planning memory: project cards with queryable frontmatter, dashboard views, resume-after-compact protocol | extracted — under review |
 | `doc-setup` | Repo documentation lifecycle: structure, naming-as-lifecycle, authority chains | extracted — under review |
-| `orchestration` | Cross-model orchestration playbook: task decomposition, contract freezing, review gates, escalation boundaries, worker cognitive profiles | content surgery pending |
+| `orchestration` | Cross-model orchestration playbook: task decomposition, contract freezing, review gates, escalation boundaries, worker cognitive profiles | extracted — snapshot data under item-level review |
 | `batch-hook` | Hard gate for unattended batch execution: stop-check + sentinel + ledger predicate that refuses to let a session end mid-batch | extracted — under review |
 | `handoff` | Pre-compact context capture: preserves what automatic compaction systematically loses | extracted — under review |
 | `decode` | Rewrites dense agent reports into human-readable density | extracted — under review |
