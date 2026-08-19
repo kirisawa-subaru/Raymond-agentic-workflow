@@ -37,10 +37,11 @@ When no valid root exists and the user wants one:
 
 1. Ask where the vault should live (any directory; an Obsidian vault if they want the dashboard rendered).
 2. Copy `templates/SCHEMA.md` and `templates/INDEX.md` from this skill's directory into the root.
-3. Create the type directories from the schema (`bot/ plugin/ pipeline/ infra/ knowledge/ writing/ experiment/`) plus `HISTORY/` and `archived/`.
-4. Copy `templates/example-card.md` into the matching type directory so the first real card has a model to follow, and tell the user to delete it once oriented.
-5. Tell the user to run `/workflow-setup` to record the new root in this skill, or set `PROJECT_CARDS_ROOT` as an environment override.
-6. If the root is not inside a git repo, recommend `git init` — the Git Boundary below assumes version control.
+3. In the copied `INDEX.md`, replace every `"PROJECTS_DIR"` placeholder with the cards root's actual path relative to the Obsidian vault root (normally the cards root directory name). If the user does not use Obsidian, use the actual cards root directory name. Verify that `PROJECTS_DIR` no longer appears.
+4. Create the type directories from the schema (`bot/ plugin/ pipeline/ infra/ knowledge/ writing/ experiment/`) plus `HISTORY/` and `archived/`.
+5. Copy `templates/example-card.md` into the matching type directory so the first real card has a model to follow, and tell the user to delete it once oriented.
+6. Tell the user to run `/workflow-setup` to record the new root in this skill, or set `PROJECT_CARDS_ROOT` as an environment override.
+7. If the root is not inside a git repo, recommend `git init` — the Git Boundary below assumes version control.
 
 After init, the vault copy of `SCHEMA.md` is authoritative for that vault. The template here is only the starting point; users are expected to evolve their copy.
 

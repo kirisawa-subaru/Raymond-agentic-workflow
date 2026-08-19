@@ -1,74 +1,118 @@
 # Raymond Agentic Workflow
 
-> A seven-component workflow system for long-horizon, multi-agent development — distilled from a year of daily operation, not designed on a whiteboard.
+## 使用方式
 
-**Status: pre-release.** Components are being extracted and sanitized from a private, actively used system. Nothing here is published yet.
+纯 Markdown 文档 + 薄脚本，脚本可使用本地 agent 重新编写以适配环境。
 
-## Why this exists
+安装到 `.claude`、`.codex` 等 agent 目录中即可使用，推荐成套使用。
 
-Single-agent coding assistants fail at long-horizon work in predictable ways: planning state evaporates between sessions, specs drift, agents report success without evidence, and unattended runs quietly stop halfway. This repo packages the discipline layer that a real multi-agent operation grew to survive those failure modes.
+内有部分项目或文件路径内联。强烈建议第一次运行时先用 `/workflow-setup` 进行配置，将本机目录写入 skill 中，方便 agent 使用。
 
-Every rule in here exists because something actually went wrong without it. The incident that motivated each rule is cited inline.
+### 通常使用流程
 
-## Harness-agnostic by design
+#### 立项时
 
-Nothing in this system is locked to one agent product or one OS. Each component is a plain-markdown operating procedure plus, at most, a tiny script — shipped in both POSIX shell (`.sh`) and PowerShell (`.ps1`) with an identical contract, so Windows is a first-class target rather than a WSL afterthought. That is the lowest common denominator every current harness (Claude Code, Codex CLI, Cursor, or a bare API loop) can consume. Anything harness-specific (how to register a hook, where a skills directory lives) is quarantined in [`adapters/`](adapters/) and is strictly optional wiring, never part of a component's logic.
-
-Inline command examples in the procedures use POSIX syntax for brevity; where a check matters, the **invariant is the contract, not the command** — agents on Windows verify the same invariant with whatever shell they have.
-
-## Components
-
-| Component | Role | Status |
-|---|---|---|
-| `workflow-setup` | One-pass local onboarding: discovers the harness/fleet/paths, asks only for unresolved choices, and writes bounded plaintext configuration into the installed skills | extracted — under review |
-| `track-project` | Executable planning memory: project cards with queryable frontmatter, dashboard views, resume-after-compact protocol | extracted — under review |
-| `doc-setup` | Repo documentation lifecycle: structure, naming-as-lifecycle, authority chains | extracted — under review |
-| `orchestration` | Cross-model orchestration playbook: task decomposition, contract freezing, review gates, escalation boundaries, worker cognitive profiles | extracted — snapshot data under item-level review |
-| `batch-hook` | Hard gate for unattended batch execution: stop-check + sentinel + ledger predicate that refuses to let a session end mid-batch | extracted — under review |
-| `handoff` | Pre-compact context capture: preserves what automatic compaction systematically loses | extracted — under review |
-| `decode` | Rewrites dense agent reports into human-readable density | extracted — under review |
-
-Together they cover the full lifecycle: **local setup → planning memory → doc discipline → dispatch discipline → execution hard gate → context continuity → report consumption.**
-
-## Design principles
-
-<!-- TODO: expand each with the incident that motivated it -->
-
-- **Trust anchors live outside the agent.** Verification is done by independent instances against script exit codes and on-device runs, never by the implementer's self-report.
-- **Error diversity over error magnitude.** Review instances are separated from implementation instances; cross-model-family review preferred.
-- **Two failed rounds means the spec is the suspect, not the worker.**
-- **Inference does not walk naked into a decision.** Plausible-but-unverified claims get a probe job before they enter any ruling.
-- **Prompt files are traces.** Frozen at dispatch, committed, never edited retroactively.
-
-## Installation
-
-These are plain markdown procedure documents. Wire them into whatever instruction-loading mechanism your harness has — a skills directory, a rules directory, or simply telling the agent to read the file:
-
-```bash
-git clone <this-repo>
-# then, per component you want, link it where your harness discovers instructions
+```mermaid
+flowchart LR
+    A["/track-project"] --> B["/doc-setup"] --> C["/orchestration"]
 ```
 
-Per-harness wiring (directory locations, hook registration) lives in [`adapters/`](adapters/). Only `batch-hook` has a hard harness requirement: its gate needs a harness capable of running a command when the agent tries to end its turn.
+#### 施工中
 
-After the components are discoverable, invoke `/workflow-setup`. The setup agent inspects local capabilities, asks for the remaining choices once, and writes them into bounded `Local configuration` blocks inside each installed `SKILL.md`.
+```mermaid
+flowchart LR
+    A["/orchestration"] --> B["/track-project"] --> C["/batch-hook"]
+    D["user"] --> E["/decode"]
+```
 
-If components are symlinked from this clone, setup edits the clone through those symlinks and leaves a local Git diff. Copy the component directories instead when you want an upstream checkout that remains pristine.
+换窗或 compact 时：`/handoff`
 
-## What this authorizes — read before installing
+## Skill 介绍（排名分先后）
 
-Everything here is plaintext markdown; there is no sidecar config engine. `/workflow-setup` records local settings directly in marked blocks inside each component's `SKILL.md`; runtime agents therefore receive the configuration through the same instruction-loading path on every harness. Each component states its own authorization boundary in plain text. The full list:
+### [`/track-project`](skills/track-project/)
 
-- `workflow-setup` edits only marked local-configuration blocks inside installed skills. It may propose harness-global changes, but applies them only after explicit approval of the target and diff.
-- `batch-hook` may install a **stop-check** that can refuse to end a session's turn while an armed batch ledger has unchecked items. Installation into global harness settings requires explicit approval; until verified, its configured safe default is prose-only discipline.
-- `track-project` **commits planning-document changes** by default (scoped staging, project docs only); setup can record `disabled` in its local block.
-- `doc-setup` moves and renames files in `doc/` trees during audits — always as a proposed plan before executing.
-- `handoff` writes session-context files to your handoff directory, which may include verbatim quotes of your instructions and a candid read of your state during the session.
+> 给人用的项目仪表盘 + 最小化的长期记忆
+>
+> **非常之关键的重要 skill，推荐写进 `CLAUDE.md`，每次运行时强行加载，避免忘记。**
 
-## Configuration
+建议在 Obsidian 中搭配 Dataview 使用。
 
-See [docs/CONFIGURATION.md](docs/CONFIGURATION.md). Components reference bundled resources relative to their own directory. Machine-specific settings live in their marked local blocks; environment variables remain available as explicit runtime overrides. The distributable defaults contain no personal path.
+能够快速抓住项目的进行状态、历史记录、下一步要做的事，尤其适合同时推进多个不同项目时。
 
-## Provenance
+人只需要看 `INDEX + 人类视图`。
 
-This system was operated daily for over a year against real projects: multi-lane worker fleets across model families, mixed-model review gates, unattended overnight batches. The playbooks carry dated, falsifiable calibration entries — including the suspicions that are still open. That epistemic hygiene is the point; the specific model versions named in historical entries will age, the methodology does not.
+### [`/orchestration`](skills/orchestration/)
+
+> 规定项目里各个角色及职责
+
+简单地说：user + 车头（可用的最强 model）+ workers。
+
+workers 在项目的不同阶段有不同职责：有后端代码民工（Implementation）、前端民工（Style），也有各种保证质量的角色（Review、QA……）。按经验来说，AI 写代码本身问题不大，但 review 代码压力很大。
+
+按照这个编排运作起来，理想状态下，人可以不看 worker 的输出，一切压力和问题交给车头（Orchestrator）解决。看不懂就用 `/decode` 讲解。
+
+在这个架构下，在方向正确的前提下，人基本不需要看实现细节，但需要花费更多精力为 agent 提供多样性。只要你能想得出来的方面，agent 就能把洞补得无比结实。但不管用什么 prompt，目前 agent 都很难跳出局部最优。
+
+具体结构：
+
+| 角色 | 职责 |
+| --- | --- |
+| Operator（通常是 user） | 确定方向、品味把控、危险决策、升级响应、真机验收 |
+| Orchestrator（编排者、车头） | 冻结契约、编写对抗性测试、生成 prompts、合并裁决与抽检、保持上下文连贯性 |
+| Implementation（实现） | 逻辑 / 数据 / API / 构建 / 测试执行，可恢复的会话线程（resumable threads） |
+| QA（质量保证） | 验证脚本、部署、基于证据的报告、独立会话线程 |
+| Review A（审查 A） | 大型设计规范审查：每次使用全新实例，防止被既有风格同化 |
+| Review B（审查 B） | 互补维度规范审查：不同模型家族，侧重机制与边界 |
+| Style（样式） | 纯 CSS / 视觉 / 布局 / 动画 / 响应式工作 |
+
+### [`/handoff`](skills/handoff/)
+
+> 用于保留默认 `/compact` 易丢失的重要信息
+>
+> 教 compact 后的 Orchestrator 如何调整交互方式，以最大化协作
+
+本质上，`user` 就算 coding 的时候也是个人，而不是一团信息或者程序。
+
+默认 compact 很容易把上下文压成信息摘要，丢失和人相关的信息。为了避免 compact 后协作效率下降，单独使用 `/handoff` skill 以保留协作相关信息。
+
+理想效果是让 Orchestrator 在 user 累时少问决策、多做执行；兴奋时趁热推进高创造性的工作；frustration 高时先解决 blocker，再谈方向。
+
+和默认 `/compact` 对比：
+
+| 维度 | `/compact` | 举例 |
+| --- | --- | --- |
+| 事实（what） | ✓ | “改了 `llm.py` 第 42 行” |
+| 关系（register） | ✗ | “这个 session 说中文，用户喜欢被 push back” |
+| 因果（why） | ✗ | “选 timeout 而不是 signal reaping，是因为……” |
+| 临时态（ephemeral） | ✗ | “subagent X 还活着，里面缓存了 Y” |
+| 情绪（user state） | ✗ | “用户在这个点上有挫败感” |
+| 置信度（calibration） | ✗ | “这个 fix SHIPPED，但 production 场景未验证” |
+| 框架（meta） | ✗ | “我们正在用方法 X 做实验” |
+
+### [`/doc-setup`](skills/doc-setup/)
+
+> 给 AI 的项目文档指南，立项必备
+
+和一般的项目文档最大的区别在：
+
+- **`principle.md`：** 专写和 agent 直觉相反的设计准则（比如我不要磨砂玻璃风格，就要 98 年代怀旧 UI）。
+- **Partition by lifecycle, not by topic：** 让 agent 一眼就知道该看哪、该写哪。
+
+### [`/decode`](skills/decode/)
+
+> 黑话翻译指南
+
+将 agent 输出报告转换为人类易读的样式和版本：
+
+- 肥波（Fable）语：超高概念密度，充满黑话，且默认读者自带完整项目上下文。
+- Codex 语：极为完整、详细的报告，内含大量执行细节，长度超过人类能够记忆和理解的极限。
+
+用户粘贴输出报告片段，agent 识别这两种类型，按照针对性的方式将黑话翻译成较为符合人类认知习惯的报告。
+
+推荐 model：`claude-opus-4-6`
+
+### [`/batch-hook`](skills/batch-hook/)
+
+> loop 的另一种方式，允许合理停工，但不允许自我欺骗 / 幻觉
+
+Opus 比较懒，当车头时总容易半路停下来，可以在跑过夜任务之前用这个 skill 设 loop。

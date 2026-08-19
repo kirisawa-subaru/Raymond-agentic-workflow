@@ -76,6 +76,4 @@ Admission: five canary probes + one A/B; entered on the operator's ruling as a p
 
 **Dispatch.** Full-width freeze-gate review fed whole (the "deep-but-narrow" hypothesis was falsified: wide coverage and deep mechanism coexist); 1M context takes the full compound contract set. Sterile harness flags + staging stripped of VCS history + session tool-call audit. Runs where the staging can't execute tests, its conclusions self-limit to static-confirmed with runtime claims labeled plausible — good discipline; pairing with a runnable seat is a structural need.
 
-### Gemini Flash via agy (style lane; suspended 2026-08)
 
-Operator ruling: unstable, default routing paused — style work temporarily rerouted to the Codex lane with operator acceptance as the backstop; re-verify stability before restoring. Standing knowledge: fresh instance every round (no continue); high-recall-never-empty-handed character — may fabricate confirmations under low retrieval confidence (2026-07 evidence) → reuse requires blind-verification, canaries, and cross-examination. Full profile deferred until evidence suffices.
