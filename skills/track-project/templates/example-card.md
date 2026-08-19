@@ -1,65 +1,45 @@
 ---
-project: podcast-archiver
-title: Podcast archive pipeline
-type: pipeline
+project: agent-orchestration
+title: 跨模型 Agent 编排 / Opus-Codex-agy 三 family 执行
+type: infra
 phase: building
-activity: active
-status_line: Feed ingestion and transcription stable; episode search index half-built
-next_action: Wire the transcript index into the search endpoint and run the 50-episode backfill
-blocked_by: []
-unblocks: []
-tags: [audio, search]
+activity: cold
+status_line: 跨模型任务编排已改为按需唤醒；依赖任务链仍待常驻服务启用后验证
+next_action: daemon 激活后，在真实环境验证依赖任务链
+blocked_by:
+  - runtime-daemon
+unblocks:
+  - mobile-agent-bridge
+  - device-lab
+tags:
+  - agent
+  - orchestration
+  - cross-model
+  - error-diversity
+started: 2026-06-08
+last_touched: 2026-07-06
+local_paths:
+  - /path/to/llm-gateway
+  - /path/to/device-lab
+artifacts:
+  - /path/to/playbooks/orchestration-playbook.md
+  - /path/to/playbooks/spec-playbook.md
+  - /path/to/playbooks/worker-profiles.md
+  - /path/to/llm-gateway/README.md
 ---
 
-# Podcast archive pipeline
+# 跨模型 Agent 编排
 
-Fetches the podcasts I follow, transcribes new episodes, and builds a locally searchable archive — so quotes I half-remember can be found again without scrubbing through audio. Deliverable: a nightly pipeline plus a search endpoint. Terms used below: "backfill" = one-time processing of pre-existing episodes, as opposed to the nightly incremental run.
+这个项目维护一套让多个不同模型协同工作的本地执行方法：一个主模型负责拆解和判断，其他模型在隔离任务中实现、复核或提出问题。目标是让并行任务的状态可见、结果可审计、异常能停下来请求裁决，同时减少主模型反复轮询造成的上下文浪费。
 
-## Human View
+## 人类视图
 
-**State**: New episodes are fetched and transcribed automatically every night, and that part has been stable for two weeks. Search is the remaining half: the index builds locally but isn't hooked up to the query endpoint yet, so the archive exists but can't be searched. No data has been lost; old episodes wait on a one-time backfill that runs after the endpoint works.
+**状态**：跨模型编排已从强调流程训练，转为给具备编排能力的主模型提供低噪声、可审计、可取消的执行基建。任务派发、静默等待、异常提问和答复续跑已经形成闭环，默认只在需要裁决时唤醒编排者。当前还缺两类实战证据：依赖任务链在常驻服务启用后的真机验证，以及真实提问场景的完整答复链路。后续会继续观察多任务并发的唤醒次数，以及不同编排入口是否需要更简洁的封装。
 
-**Waiting on you**:
-- Decide whether transcripts of paywalled feeds may be stored locally (storage is private, but you wanted to rule on it explicitly).
+**等你的**：
 
-## Overview & Route
+- 无，当前全自动推进中。
 
-Three stages, each independently restartable: fetch (RSS poll → audio files), transcribe (local whisper run, one JSON per episode), index (transcript JSON → search index). Design bias: boring and restartable over clever — every stage is idempotent and can re-run from its inputs.
+## 整体和路线
 
-## Current Threads
-
-### Thread: search endpoint
-
-Status: active
-Scope: query endpoint over the existing index + 50-episode backfill. Not in scope: ranking quality, UI.
-
-#### Problem
-
-Index format is settled but the endpoint returns raw index rows; needs the episode-metadata join before it's usable.
-
-#### Approach
-
-Join at query time (metadata is small); benchmark only if latency exceeds ~200ms.
-
-#### To-do
-
-- [ ] Metadata join in the query path
-- [ ] Backfill the 50 pre-existing episodes
-- [ ] Smoke-test: find three known quotes end-to-end
-
-## Trajectory
-
-- 2026-08-10 21:15 — Switched transcription from API to local whisper: cost was the blocker for backfill, and local quality proved sufficient on a 5-episode sample.
-- 2026-08-03 18:40 — Split fetch and transcribe into separate stages after a feed outage corrupted a combined run; idempotent stages made the outage a non-event.
-
-## Future Work
-
-- Speaker diarization, only if search proves useful in practice.
-
-> [!success]- Completed: feed ingestion + transcription stages (2026-08)
-> - RSS poller with per-feed state files; survives feed outages by design.
-> - Local whisper transcription; 5-episode quality sample archived in the history file.
-
-## History
-
-![[HISTORY/pipeline/podcast-archiver.history]]
+用 Opus 做 orchestrator，Codex 和 agy 做 execution workers，形成跨模型分层执行架构。核心价值来自 error diversity 和 context 效率。

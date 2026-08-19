@@ -36,7 +36,7 @@ flowchart LR
 
 建议在 Obsidian 中搭配 Dataview 使用。
 
-人只需要看 `INDEX + 人类视图`, 就能够快速抓住项目的进行状态、历史记录、下一步要做的事，尤其适合同时推进多个不同项目。
+人只需要看 `INDEX + 人类视图`, 就能够快速抓住项目的进行状态、历史记录、下一步要做的事，尤其适合同时推进多个不同项目。[查看项目卡示例](skills/track-project/templates/example-card.md)
 
 
 ### [`/orchestration`](skills/orchestration/)
