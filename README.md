@@ -115,3 +115,9 @@ workers 在项目的不同阶段有不同职责：有后端代码民工（Implem
 > loop 的另一种方式，允许合理停工，但不允许自我欺骗 / 幻觉
 
 Opus 比较懒，当车头时总容易半路停下来，可以在跑过夜任务之前用这个 skill 设 loop。
+
+## 许可证
+
+Copyright © 2026 kirisawa-subaru
+
+本项目采用 [GNU General Public License v3.0 only](LICENSE)，SPDX 标识：`GPL-3.0-only`。
