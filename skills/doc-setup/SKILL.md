@@ -1,6 +1,7 @@
 ---
 name: doc-setup
-description: Set up, audit, or close out a repo's doc/ structure per the doc-management standard (lifecycle partitioning, naming-as-lifecycle, authority chain). Use when asked to set up a doc structure, reorganize/audit an existing doc tree, close out and archive batch docs, or freeze a release spec — in any repo regardless of location. Do NOT use for: (a) project cards / planning memory — that's track-project; (b) multi-agent dispatch — that's orchestration; (c) writing or revising the CONTENT of a spec/batch doc — this skill governs structure and lifecycle, not contract substance; (d) user-facing documentation sites.
+description: >-
+  Set up, audit, or close out a repo's doc/ structure per the doc-management standard (lifecycle partitioning, naming-as-lifecycle, authority chain). Use when asked to set up a doc structure, reorganize/audit an existing doc tree, close out and archive batch docs, or freeze a release spec — in any repo regardless of location. Do NOT use for: (a) project cards / planning memory — that's track-project; (b) multi-agent dispatch — that's orchestration; (c) writing or revising the CONTENT of a spec/batch doc — this skill governs structure and lifecycle, not contract substance; (d) user-facing documentation sites.
 ---
 
 # Doc Setup

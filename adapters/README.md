@@ -13,6 +13,8 @@ Components in this repo are harness-neutral. An adapter never changes component 
 3. **Per-session environment variables** — how do the variables in [docs/CONFIGURATION.md](../docs/CONFIGURATION.md) reach the agent's environment?
    Typical shapes: a settings-level env map, or plain shell-profile exports (works everywhere).
 
+After instruction discovery is wired, run `/workflow-setup`. It records local settings directly in the installed `SKILL.md` files; if discovery uses symlinks, those edits land in the symlink targets.
+
 ## Included adapters
 
 | Adapter | Discovery | batch-hook enforcement | Env |

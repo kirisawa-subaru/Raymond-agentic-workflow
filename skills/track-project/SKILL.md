@@ -1,6 +1,7 @@
 ---
 name: track-project
-description: Track, create, rename, resume, and update project cards — the executable planning-memory system (queryable YAML frontmatter + continuity prose + optional dashboard). Use when asked to update a project's status/next-action, continue a project after context compaction ("resume this project"), create or restructure a project card, rename/park/archive a project, maintain SCHEMA.md or INDEX.md, move completed work into history, or keep project tracking state consistent. Do NOT use for: (a) personal task lists unrelated to projects; (b) general project-management advice; (c) writing project code unrelated to the planning card.
+description: >-
+  Track, create, rename, resume, and update project cards — the executable planning-memory system (queryable YAML frontmatter + continuity prose + optional dashboard). Use when asked to update a project's status/next-action, continue a project after context compaction ("resume this project"), create or restructure a project card, rename/park/archive a project, maintain SCHEMA.md or INDEX.md, move completed work into history, or keep project tracking state consistent. Do NOT use for: (a) personal task lists unrelated to projects; (b) general project-management advice; (c) writing project code unrelated to the planning card.
 ---
 
 # Track Project
@@ -9,16 +10,26 @@ Maintain a vault of **project cards** as executable planning memory: frontmatter
 
 Cards are plain markdown + YAML. The dashboard layer is optional: the bundled `templates/INDEX.md` uses Obsidian Dataview, but nothing in the system depends on it — frontmatter is greppable by any tool.
 
-**Authorization note (default on, edit to narrow):** whenever this skill changes project documentation, it commits the change (scoped staging, project docs only) before finishing the turn. See the Git Boundary section.
+## Local configuration
+
+<!-- workflow-setup:begin local-configuration -->
+Configuration status: `needs-setup`
+
+- Cards root: `none` — resolve from `$PROJECT_CARDS_ROOT`, a project-local locator, or Init mode
+- Commit project-document changes: `enabled` (upstream default)
+<!-- workflow-setup:end local-configuration -->
+
+Environment variables override this block. Only `/workflow-setup` or an explicit user request may change the managed values.
 
 ## Path resolution
 
 Resolve the cards root before editing. Never assume a stale absolute path is valid.
 
 1. Use `$PROJECT_CARDS_ROOT` if set and it contains `SCHEMA.md` and `INDEX.md`.
-2. Otherwise, if the current repo's `./project.md` locator names a valid root (see below), use that.
-3. Accept a root only if `SCHEMA.md` and `INDEX.md` both exist there.
-4. If no root resolves, offer **Init mode** instead of editing a guessed location.
+2. Otherwise, use the configured Cards root when it is not `none` and contains both required files.
+3. Otherwise, if the current repo's `./project.md` locator names a valid root (see below), use that.
+4. Accept a root only if `SCHEMA.md` and `INDEX.md` both exist there.
+5. If no root resolves, offer **Init mode** instead of editing a guessed location.
 
 ## Init mode (first run)
 
@@ -28,7 +39,7 @@ When no valid root exists and the user wants one:
 2. Copy `templates/SCHEMA.md` and `templates/INDEX.md` from this skill's directory into the root.
 3. Create the type directories from the schema (`bot/ plugin/ pipeline/ infra/ knowledge/ writing/ experiment/`) plus `HISTORY/` and `archived/`.
 4. Copy `templates/example-card.md` into the matching type directory so the first real card has a model to follow, and tell the user to delete it once oriented.
-5. Tell the user to set `PROJECT_CARDS_ROOT` (shell profile or harness env — see `docs/CONFIGURATION.md`).
+5. Tell the user to run `/workflow-setup` to record the new root in this skill, or set `PROJECT_CARDS_ROOT` as an environment override.
 6. If the root is not inside a git repo, recommend `git init` — the Git Boundary below assumes version control.
 
 After init, the vault copy of `SCHEMA.md` is authoritative for that vault. The template here is only the starting point; users are expected to evolve their copy.
@@ -66,7 +77,7 @@ Dashboard   owns views
 
 ## Git Boundary
 
-Whenever this skill changes project documentation, commit the change before finishing the turn. Project documentation = cards, schema/dashboard files, history files under the cards root, plus project-local handoff docs (status docs, runbooks, result summaries) linked from the card.
+When `Commit project-document changes` is `enabled`, commit changes before finishing the turn. When it is `disabled`, do not stage or commit unless the user separately asks. Project documentation = cards, schema/dashboard files, history files under the cards root, plus project-local handoff docs (status docs, runbooks, result summaries) linked from the card.
 
 - Inspect `git status` and the diff before staging.
 - One focused commit per git root when changes span several.

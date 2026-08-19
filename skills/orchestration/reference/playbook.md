@@ -6,7 +6,7 @@ Every rule below is bound to a **role**, never to a model. Incidents that motiva
 
 ## Roles and routing
 
-Roles are constant; seat assignments (which model sits in which role) drift with every model generation. All rules bind to roles — changing a model edits only the seat table, and the seat table's authority lives in worker-profiles, not here.
+Roles are constant; seat assignments (which model sits in which role) drift with every model generation. All rules bind to roles — changing a model edits only the Local configuration seat map in `../SKILL.md`. Worker-profiles supplies the cognitive evidence used to choose those seats; it does not own the current mapping.
 
 A working fleet needs at least these roles:
 
@@ -45,7 +45,7 @@ Communication = supplying what the other position cannot see. Two checklists:
 
 ### Error diversity > error magnitude
 
-Same-family models have highly correlated failure surfaces. Separating review instances from implementation instances is the floor; cross-family review is better. Who reviews a spec and who rules on a diff follows the seat table and calibration in worker-profiles — never frozen per-model here.
+Same-family models have highly correlated failure surfaces. Separating review instances from implementation instances is the floor; cross-family review is better. Who reviews a spec and who rules on a diff follows the configured seat map, informed by calibration in worker-profiles — never frozen per-model here.
 
 ### Temperament-role fit
 

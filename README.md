@@ -1,6 +1,6 @@
 # Raymond Agentic Workflow
 
-> A six-component workflow system for long-horizon, multi-agent development — distilled from a year of daily operation, not designed on a whiteboard.
+> A seven-component workflow system for long-horizon, multi-agent development — distilled from a year of daily operation, not designed on a whiteboard.
 
 **Status: pre-release.** Components are being extracted and sanitized from a private, actively used system. Nothing here is published yet.
 
@@ -20,6 +20,7 @@ Inline command examples in the procedures use POSIX syntax for brevity; where a 
 
 | Component | Role | Status |
 |---|---|---|
+| `workflow-setup` | One-pass local onboarding: discovers the harness/fleet/paths, asks only for unresolved choices, and writes bounded plaintext configuration into the installed skills | extracted — under review |
 | `track-project` | Executable planning memory: project cards with queryable frontmatter, dashboard views, resume-after-compact protocol | extracted — under review |
 | `doc-setup` | Repo documentation lifecycle: structure, naming-as-lifecycle, authority chains | extracted — under review |
 | `orchestration` | Cross-model orchestration playbook: task decomposition, contract freezing, review gates, escalation boundaries, worker cognitive profiles | extracted — snapshot data under item-level review |
@@ -27,7 +28,7 @@ Inline command examples in the procedures use POSIX syntax for brevity; where a 
 | `handoff` | Pre-compact context capture: preserves what automatic compaction systematically loses | extracted — under review |
 | `decode` | Rewrites dense agent reports into human-readable density | extracted — under review |
 
-Together they cover the full lifecycle: **planning memory → doc discipline → dispatch discipline → execution hard gate → context continuity → report consumption.**
+Together they cover the full lifecycle: **local setup → planning memory → doc discipline → dispatch discipline → execution hard gate → context continuity → report consumption.**
 
 ## Design principles
 
@@ -50,18 +51,23 @@ git clone <this-repo>
 
 Per-harness wiring (directory locations, hook registration) lives in [`adapters/`](adapters/). Only `batch-hook` has a hard harness requirement: its gate needs a harness capable of running a command when the agent tries to end its turn.
 
+After the components are discoverable, invoke `/workflow-setup`. The setup agent inspects local capabilities, asks for the remaining choices once, and writes them into bounded `Local configuration` blocks inside each installed `SKILL.md`.
+
+If components are symlinked from this clone, setup edits the clone through those symlinks and leaves a local Git diff. Copy the component directories instead when you want an upstream checkout that remains pristine.
+
 ## What this authorizes — read before installing
 
-Everything here is plaintext markdown; there is no config engine. Each component states its authorizations in its own SKILL.md, **enabled by default**. To narrow one, edit the text. The full list:
+Everything here is plaintext markdown; there is no sidecar config engine. `/workflow-setup` records local settings directly in marked blocks inside each component's `SKILL.md`; runtime agents therefore receive the configuration through the same instruction-loading path on every harness. Each component states its own authorization boundary in plain text. The full list:
 
-- `batch-hook` installs a **stop-check** that can refuse to end a session's turn while an armed batch ledger has unchecked items. Fail-open by design; disarm anytime by deleting the sentinel file.
-- `track-project` **commits planning-document changes** as part of its contract (scoped staging, project docs only).
+- `workflow-setup` edits only marked local-configuration blocks inside installed skills. It may propose harness-global changes, but applies them only after explicit approval of the target and diff.
+- `batch-hook` may install a **stop-check** that can refuse to end a session's turn while an armed batch ledger has unchecked items. Installation into global harness settings requires explicit approval; until verified, its configured safe default is prose-only discipline.
+- `track-project` **commits planning-document changes** by default (scoped staging, project docs only); setup can record `disabled` in its local block.
 - `doc-setup` moves and renames files in `doc/` trees during audits — always as a proposed plan before executing.
 - `handoff` writes session-context files to your handoff directory, which may include verbatim quotes of your instructions and a candid read of your state during the session.
 
 ## Configuration
 
-See [docs/CONFIGURATION.md](docs/CONFIGURATION.md). Components reference their own bundled files relative to their own directory. Machine-specific locations (e.g. your planning-vault root) are supplied via environment variables declared there; nothing in this repo hardcodes a personal path.
+See [docs/CONFIGURATION.md](docs/CONFIGURATION.md). Components reference bundled resources relative to their own directory. Machine-specific settings live in their marked local blocks; environment variables remain available as explicit runtime overrides. The distributable defaults contain no personal path.
 
 ## Provenance
 

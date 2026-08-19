@@ -7,9 +7,23 @@ description: Arm/disarm a "continuous-execution hard gate" for unattended batch 
 
 Long unattended batches fail in a characteristic way: the model doesn't crash, it *lets go* — ends its turn on a plan, a milestone summary, or a polite "shall I continue?". This gate makes letting go mechanically impossible while work remains.
 
+## Local configuration
+
+<!-- workflow-setup:begin local-configuration -->
+Configuration status: `needs-setup`
+
+- Harness: `UNCONFIGURED`
+- Enforcement mode: `prose-only` (safe default until a compatible stop-check is verified)
+- Registered stop-check command: `none`
+- Harness settings location: `UNCONFIGURED`
+- Project-root resolution: `$AGENT_PROJECT_DIR` → harness-injected project directory → `$PWD`
+<!-- workflow-setup:end local-configuration -->
+
+Read this block before claiming the gate is active. In `prose-only` mode, apply the ledger discipline clauses but do not describe them as mechanically enforced. Ask the user to run `/workflow-setup` before installing or changing a global stop-check.
+
 ## Mechanism
 
-Three parts. Installed globally once, armed per batch:
+Three parts. In `hard-gate` mode, installed globally once and armed per batch:
 
 1. **Predicate script** (`stop-gate.sh` for POSIX shells, `stop-gate.ps1` for Windows PowerShell — identical contract): registered with your harness as a stop-check — a command the harness runs every time a session tries to end its turn. Exit 2 with a stderr message means "refuse, feed the message back to the model". Wiring per harness lives in `adapters/`; the scripts themselves are harness-neutral.
 2. **Sentinel** `$REPO/tmp/batch-active`: first line = repo-relative path of the batch ledger. Sentinel absent → the gate is fully transparent (millisecond check, then pass). This is the per-batch on/off switch — zero configuration.
@@ -17,7 +31,9 @@ Three parts. Installed globally once, armed per batch:
 
 On refusal the reason is fed back to the model via stderr: keep executing, or write a BLOCKED trace before you may end. Pass conditions = ledger fully checked / column-0 BLOCKED / sentinel absent / ledger path invalid (fail-open — a misconfigured gate must never trap the session).
 
-## Arm (first step of an execution thread)
+## Arm (first step of a hard-gate execution thread)
+
+Arm the sentinel only when the configured enforcement mode is `hard-gate` and the registered stop-check has been verified. In `prose-only` mode, skip the sentinel and place the discipline clauses directly in the batch ledger.
 
 ```bash
 mkdir -p tmp && echo 'doc/batch/batch-YYYYMMDD-xxx.md' > tmp/batch-active
@@ -49,6 +65,6 @@ When writing a batch doc, put these in its "continuous-execution discipline" sec
 ## Notes
 
 - The gate only prevents the model letting go; it does not survive process death (terminal closed, machine asleep). For truly unattended overnight runs, layer an external re-prompt loop (cron or similar) on top.
-- Stop-check registration is a global standing fixture of your harness config. If it goes missing, re-register per your harness's adapter in `adapters/`.
+- In `hard-gate` mode, stop-check registration is a global standing fixture of the configured harness. If verification shows it missing, run `/workflow-setup` before re-registering it; do not mutate global harness settings from this runtime skill.
 - The script resolves the repo root from `AGENT_PROJECT_DIR`, falling back to the harness-injected project dir, then `$PWD`.
 - Hard requirement: a harness that can run a command at end-of-turn and feed its stderr back to the model on a nonzero exit. Without that enforcement point this component degrades to prose discipline — still useful in the ledger, but no longer a hard gate.

@@ -5,9 +5,12 @@ Wiring for the Claude Code harness. Nothing here changes component logic — it 
 ## Skills discovery
 
 ```bash
+ln -s "$(pwd)/skills/workflow-setup" ~/.claude/skills/workflow-setup
 ln -s "$(pwd)/skills/track-project" ~/.claude/skills/track-project
 # ...repeat per component
 ```
+
+Invoke `/workflow-setup` after linking the components. Because these are symlinks, its managed configuration edits land in this checkout; copy the component directories instead if that is not desired.
 
 ## batch-hook stop-check
 

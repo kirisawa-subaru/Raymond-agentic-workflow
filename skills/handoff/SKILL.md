@@ -5,7 +5,15 @@ description: Capture pre-compact context that automatic compaction systematicall
 
 # Session handoff
 
-Write a complementary session handoff to `$AGENT_HANDOFF_DIR/<filename>.md` (default `~/.agent/session-handoff/`).
+## Local configuration
+
+<!-- workflow-setup:begin local-configuration -->
+Configuration status: `needs-setup`
+
+- Handoff directory: `~/.agent/session-handoff/` (upstream default)
+<!-- workflow-setup:end local-configuration -->
+
+Write a complementary session handoff to `$AGENT_HANDOFF_DIR/<filename>.md` when the environment variable is set; otherwise use the configured Handoff directory above.
 
 Automatic compaction is optimized for facts: files changed, errors fixed, pending tasks. What it systematically drops is everything *relational and epistemic* — how the conversation was being conducted, why decisions went the way they did, what's still alive outside the transcript, and how much each shipped claim deserves to be trusted. This skill captures exactly that complement.
 

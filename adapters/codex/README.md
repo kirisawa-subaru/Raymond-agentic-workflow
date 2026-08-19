@@ -7,9 +7,12 @@ Wiring for OpenAI Codex CLI. Nothing here changes component logic.
 Codex scans `~/.codex/skills/`:
 
 ```bash
+ln -s "$(pwd)/skills/workflow-setup" ~/.codex/skills/workflow-setup
 ln -s "$(pwd)/skills/track-project" ~/.codex/skills/track-project
 # ...repeat per component
 ```
+
+Invoke `/workflow-setup` after linking the components. Because these are symlinks, its managed configuration edits land in this checkout; copy the component directories instead if that is not desired.
 
 Universal fallback if your version predates skills support — pointer lines in `~/.codex/AGENTS.md` (or a project `AGENTS.md`):
 

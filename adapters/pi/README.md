@@ -16,6 +16,8 @@ ln -s "$(pwd)/skills/track-project" ~/.agents/skills/track-project
 
 Directories containing a `SKILL.md` are discovered recursively; skills also register as `/skill:name` commands.
 
+Invoke the discovered `workflow-setup` skill after wiring the suite. If the suite is referenced in place, its managed configuration edits land in this checkout; copy the component directories first if that is not desired.
+
 ## batch-hook enforcement point
 
 Pi has no built-in stop-check hook, but its extension API observes the agent loop and can inject follow-up messages — which is the same contract. Sketch (verify event names against your pi version's `docs/extensions.md`):
