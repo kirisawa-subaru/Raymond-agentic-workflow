@@ -12,7 +12,9 @@ Every rule in here exists because something actually went wrong without it. The 
 
 ## Harness-agnostic by design
 
-Nothing in this system is locked to one agent product. Each component is a plain-markdown operating procedure plus, at most, a POSIX shell script — the lowest common denominator that every current harness (Claude Code, Codex CLI, Cursor, or a bare API loop) can consume. Anything harness-specific (how to register a hook, where a skills directory lives) is quarantined in [`adapters/`](adapters/) and is strictly optional wiring, never part of a component's logic.
+Nothing in this system is locked to one agent product or one OS. Each component is a plain-markdown operating procedure plus, at most, a tiny script — shipped in both POSIX shell (`.sh`) and PowerShell (`.ps1`) with an identical contract, so Windows is a first-class target rather than a WSL afterthought. That is the lowest common denominator every current harness (Claude Code, Codex CLI, Cursor, or a bare API loop) can consume. Anything harness-specific (how to register a hook, where a skills directory lives) is quarantined in [`adapters/`](adapters/) and is strictly optional wiring, never part of a component's logic.
+
+Inline command examples in the procedures use POSIX syntax for brevity; where a check matters, the **invariant is the contract, not the command** — agents on Windows verify the same invariant with whatever shell they have.
 
 ## Components
 

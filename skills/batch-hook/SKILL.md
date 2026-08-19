@@ -11,7 +11,7 @@ Long unattended batches fail in a characteristic way: the model doesn't crash, i
 
 Three parts. Installed globally once, armed per batch:
 
-1. **Predicate script** (`stop-gate.sh` in this skill's directory): registered with your harness as a stop-check — a command the harness runs every time a session tries to end its turn. Exit 2 with a stderr message means "refuse, feed the message back to the model". Wiring per harness lives in `adapters/`; the script itself is harness-neutral POSIX shell.
+1. **Predicate script** (`stop-gate.sh` for POSIX shells, `stop-gate.ps1` for Windows PowerShell — identical contract): registered with your harness as a stop-check — a command the harness runs every time a session tries to end its turn. Exit 2 with a stderr message means "refuse, feed the message back to the model". Wiring per harness lives in `adapters/`; the scripts themselves are harness-neutral.
 2. **Sentinel** `$REPO/tmp/batch-active`: first line = repo-relative path of the batch ledger. Sentinel absent → the gate is fully transparent (millisecond check, then pass). This is the per-batch on/off switch — zero configuration.
 3. **Ledger contract**: the batch ledger tracks progress with `- [ ]` checkboxes; a hard-block trace is one line at column 0 at the end of the ledger — `BLOCKED: <reason> <paths tried>`. The gate matches `^BLOCKED:` only, so mentions inside list items don't trigger it.
 
@@ -23,10 +23,18 @@ On refusal the reason is fed back to the model via stderr: keep executing, or wr
 mkdir -p tmp && echo 'doc/batch/batch-YYYYMMDD-xxx.md' > tmp/batch-active
 ```
 
+```powershell
+New-Item -ItemType Directory -Force tmp | Out-Null; Set-Content tmp/batch-active 'doc/batch/batch-YYYYMMDD-xxx.md'
+```
+
 ## Disarm (after close-out or BLOCKED)
 
 ```bash
 rm tmp/batch-active
+```
+
+```powershell
+Remove-Item tmp/batch-active
 ```
 
 ## Discipline clauses the batch ledger must contain (template)
