@@ -1,87 +1,84 @@
 ---
 name: decode
-description: Rewrite raw agent output into human-readable density. Compressed orchestrator output → syntactic decompression + reference expansion; audience-mixed worker output → decision/execution triage + folded summaries. Use when a human needs to consume agent reports without drowning in information density or irrelevant implementation detail.
+description: 将 Fable/Codex 等 agent 的原始产出重写为人类可读密度。Fable→句法解压+引用补全；Codex→受众分流+折叠摘要。用于用户需要消费 agent 报告但不想被信息密度或无关细节淹没时。Also via `/decode`。
 ---
 
-# Decode — agent output → human-readable
+# Decode — agent 产出→人类可读
 
-## Why this skill exists
+## Why
 
-An agent's working memory is far larger than a human's. Expression optimized by an agent is efficient for the agent itself (or for the next instance resuming its context), but exceeds what a human can parse in one read. Two styles of agent output hit this bottleneck differently, and the fixes are different.
+agent 的工作记忆远大于人。agent 最优化出来的表达对 agent 自己（或下一个接续实例）是高效的，但超出人一次阅读的 parse 容量。两类 agent 撞上这个瓶颈的方式不同，修法也不同。
 
-## Trigger
+## Oversight
 
-The user gives you a piece of agent output (pasted text, a file path, or "decode X"). Rewrite it by the rules below. If the user doesn't name the source style, judge it yourself — compressed-orchestrator output is marked by high-density noun phrases and omitted causal connectives; worker-report output is marked by decision content and implementation specs interleaved in the same document.
+用户给你一段 agent 产出（贴文本、指文件路径、或说"decode 一下 xxx"），agent按下面的规则重写。Fable 产出的特征是高密度名词短语和省略因果连接词；Codex 产出的特征是决策内容和实现规格混排。
 
-## Style A: double-compressed orchestrator output
+## Fable 产出
 
-(Typical of high-density orchestrator models writing ledgers, close-out notices, and handoffs.) The problem is two layers of compression stacked:
+Fable 的问题是双层压缩叠加：
 
-1. **Context compression**: lane IDs, commit hashes, incident codenames, and term abbreviations are used as known quantities, never expanded.
-2. **Syntactic compression**: multiple independent assertions squeezed into one comma-separated clause, causal connectives omitted.
+1. **上下文压缩**：lane 编号、commit hash、事故代号、术语缩写当已知量用，不展开。
+2. **句法压缩**：多个独立断言挤进一个逗号分隔的子句，省略因果连接词。
 
-### Rules
+### 操作规则
 
-- **One assertion per line.** Independent facts joined by commas or semicolons in the source get their own lines.
-- **Make causality explicit.** A causal chain implied by juxtaposition ("A, B, C") becomes "A. Because B, therefore C." If the causal direction is uncertain, keep the juxtaposition but split the lines.
-- **Expand compressed references.** On first occurrence of a lane ID, incident codename, or abbreviation, append a one-sentence parenthetical of context — e.g. "the PRIM2 incident (a git checkout inside a clone wiped an unharvested implementation)". Keep commit hashes but add a sentence on what each did. If you don't know what a reference points to, mark it `[?]` rather than guessing.
-- **Fix cross-language syntax.** Orchestrators often write one language with another language's syntax (front-loaded modifiers, passive voice, nested parentheticals). Rewrite into natural subject-verb-object order for the output language.
-- **Add blank lines** at logical topic switches. None within a topic.
-- **Delete nothing.** This is decompression, not summarization. Every fact survives.
+- **一个断言一行**。原文用逗号或分号并列的独立事实，拆成独立的行。
+- **因果关系显式化**。原文靠并列暗示的因果链（A，B，C），改写为「A。因为 B，所以 C」。不确定因果方向时保持并列但分行。
+- **展开压缩引用**。首次出现的 lane 编号、事故代号、术语缩写，在后面用括号补一句话的上下文。例：「PRIM2 事故（在克隆里误用 git checkout 冲掉了未 harvest 的实现）」。commit hash 保留但补一句它做了什么。如果你不知道引用指什么，标 `[?]` 而非猜测。
+- **中文语序重排**。Fable 常写出英文句法的中文（长定语前置、被动句、嵌套括号）。拆成主谓宾正序短句。
+- **加空行**。逻辑主题切换处加空行。段内不加。
+- **不删信息**。这是解压不是摘要。所有事实必须保留。
+- **没有看过的repo原内容标未知**。如果提到未知的原repo内容, 则在对应解读内容前标 `[speculated]`. 并在报告末尾提醒 user 可通过查阅原repo的方式获得更全面准确的解读。
 
-### Example
+### 示例
 
-Source:
+原文：
+> K3 载荷发现 5/5 亲核属实，session 审计零越界，噪音 1/8（COMMON 路径误判，符合画像「机制略宽」）
 
-> K3 payload findings 5/5 verified-true, session audit zero overreach, noise 1/8 (COMMON path misjudgment, matches profile "mechanism slightly wide")
-
-Rewritten:
-
-> All 5 of K3's payload findings were personally verified by the orchestrator and confirmed true.
+重写：
+> K3 的 5 条载荷发现全部经 orchestrator 亲自核实，确认属实。
 >
-> The session audit was clean — no out-of-scope access.
+> session 审计干净，没有越界访问。
 >
-> Noise rate was 1/8: the single false positive judged COMMON.md's path to be "another machine's path". This matches the K3 profile trait "conclusions reliable, mechanism boundaries occasionally drawn wide".
+> 噪音率 1/8——唯一的误报是把 COMMON.md 的路径判断为「其他机器的路径」。这符合 K3 画像里「结论可靠、机制边界偶尔划宽」的特征。
 
-## Style B: audience-mixed worker output
+## Codex 产出的处理
 
-(Typical of spec-oriented worker models writing reports.) The problem is not too much detail but **no audience separation** — content the human needs for a decision and specs the next worker needs for execution sit in the same document, forcing the human to read implementation detail irrelevant to their ruling.
+Codex 的问题不是细节太多，而是**不分受众**——给用户做决策的内容和给 worker 做执行的规格细节混在同一份文档里，导致用户被迫读大量跟自己裁决无关的实现细节。
 
-### Rules
+### 操作规则
 
-- **Identify each paragraph's real audience.** Ask: does this help the human judge direction, or tell a worker how to implement?
-- **Present only the decision layer.** Direction judgments, risk warnings, key constraints, recommended options — keep these verbatim (worker-model prose aimed at humans is usually fine as written).
-- **Demote the execution layer to folded summaries.** Replace omitted implementation detail with 2–3 sentences stating what was compressed, appended to the relevant section:
+- **识别每一段的真实受众**。问自己：这段是帮用户判断方向的，还是帮 worker 知道怎么实现的？
+- **只呈现决策层**。方向判断、风险警告、关键约束、推荐选项——这些留下，原样呈现（Codex 写给人的决策内容本身可读性通常没问题）。
+- **执行层降级为折叠摘要**。被省略的实现细节用 2-3 句话说明压缩了什么，放在对应段落末尾，格式为：
 
-  > **[execution detail omitted]** Omitted here: the four commit preconditions of AgreedTextStore and the five scenarios that must share one commit path. See §3, second half, when you need the implementation spec.
+  > **[省略的执行细节]** 这里省略了 AgreedTextStore 的四项提交前提条件和五条必须走同一路径的场景。需要看实现规格时展开原文 §3 后半段。
 
-- **Preserve the source's section numbering** so the reader can jump back to omitted parts by number.
-- **Acceptance checklists, interface definitions, hash-verification timing** and similar pure-execution content get folded whole, never itemized.
+- **保持原文的结构编号**。方便用户按编号回原文查看被省略的部分。
+- **验收 checklist、TypeScript 接口定义、具体 hash 校验时机等纯执行内容**整段折叠，不逐条列出。
 
-### Example
+### 示例
 
-Source (second half of a worker report's §3):
-
-> The later three-way merge requires a new `AgreedTextStore`, which may only advance once all of the following hold:
-> - Both sides' target text written or verified.
-> - Both sides' UID/content digests re-acquired.
-> - The sync record committed.
-> - The corresponding pending operation completed.
+原文（Codex 的 §3 后半段）：
+> 后续三方合并需要新建 `AgreedTextStore`，它只能在以下条件全部成立后推进：
+> - 双侧目标正文写入或验证成功。
+> - 双侧 UID/内容摘要已重新取得。
+> - sync record 已提交。
+> - 对应 pending operation 已完成。
 >
-> Upload, download, equal-content AddRecord, manual resolution, and auto-merge must all go through the same commit path. When the base is missing or untrusted, always fall back to keep-both — never degrade to latest-wins.
+> 上传、下载、equal-content AddRecord、人工解决、自动合并都必须走同一条提交路径。base 缺失或不可信时一律退回 keep-both，不能退化成 latest-wins。
 
-The whole passage becomes:
+重写后这整段变成：
+> **[省略的执行细节]** 这里省略了 AgreedTextStore 的四项写入前提和五条统一提交路径的约束。核心结论已在上方：当前 base 不可信，启用前需要新建可信的祖先存储。需要看具体实现约束时查原文 §3。
 
-> **[execution detail omitted]** Omitted here: AgreedTextStore's four write preconditions and the unified-commit-path constraint across its five scenarios. The core conclusion is above: the current base is untrusted, and a trustworthy ancestor store must be built before enabling. See §3 for the concrete constraints.
+## 混合产出或不确定来源
 
-## Mixed or uncertain sources
+如果一份文档里两种风格都有（比如 Fable 写的账本里嵌了 Codex worker 的报告），按段落分别处理。在切换处标注一句「以下是 [来源] 的产出」。
 
-If one document contains both styles (e.g. an orchestrator ledger embedding worker reports), handle it per paragraph. Mark each switch with one line: "The following is [source]'s output."
+## 不要做的事
 
-## Never do
-
-- **No analysis or opinion of your own.** You are a translator, not an advisor. The reader wants the original information made readable, not your take on it.
-- **No merging or reordering of sections.** Keep the source's logical flow; change only the density.
-- **No vague fold summaries.** "Some implementation details omitted" is useless — state which categories of what were omitted, enough for the reader to decide whether to expand.
-- **No audience triage on Style A output.** An orchestrator's human-facing content (status views, ruling summaries) is already filtered; its internal documents (ledgers, handoffs) need decompression, not deletion.
-- **No syntactic decompression on Style B output.** Worker prose aimed at humans reads fine; the problem is not the syntax.
+- **不加自己的分析或评价**。你是译者不是顾问。用户要的是能读进去的原始信息，不是你的看法。
+- **不合并或重组段落顺序**。保持原文的逻辑流，只改密度。
+- **不把折叠摘要写得太含糊**。「省略了一些实现细节」没用——必须说清楚省略了哪几类什么东西，够用户判断要不要展开。
+- **不对 Fable 产出做受众分流**。Fable 写给人的内容（人类视图、裁决摘要）本身没问题，不需要再过滤；Fable 的内部文档（账本、handoff）需要的是解压不是删减。
+- **不对 Codex 产出做句法解压**。Codex 给人写的句子本身可读性够用，问题不在句法。
