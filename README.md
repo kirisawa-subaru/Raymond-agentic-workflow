@@ -4,7 +4,7 @@
 
 纯 Markdown 文档 + 薄脚本，脚本可使用本地 agent 重新编写以适配环境。
 
-安装到 `.claude`、`.codex` 等 agent 目录中即可使用，推荐成套使用。
+安装到 `.claude`、`.codex` 等 agent 目录中即可使用，**推荐成套使用**。
 
 内有部分项目或文件路径内联。强烈建议第一次运行时先用 `/workflow-setup` 进行配置，将本机目录写入 skill 中，方便 agent 使用。
 
@@ -22,10 +22,9 @@ flowchart LR
 ```mermaid
 flowchart LR
     A["/orchestration"] --> B["/track-project"] --> C["/batch-hook"]
-    D["user"] --> E["/decode"]
 ```
-
-换窗或 compact 时：`/handoff`
+人读报告:           `/decode`
+换窗或 compact ：   `/handoff`
 
 ## Skill 介绍（排名分先后）
 
@@ -33,25 +32,24 @@ flowchart LR
 
 > 给人用的项目仪表盘 + 最小化的长期记忆
 >
-> **非常之关键的重要 skill，推荐写进 `CLAUDE.md`，每次运行时强行加载，避免忘记。**
+> **非常之关键的重要 skill，推荐写进 `CLAUDE.md`/ `agent.md`，每次运行时前置加载，避免忘记。**
 
 建议在 Obsidian 中搭配 Dataview 使用。
 
-能够快速抓住项目的进行状态、历史记录、下一步要做的事，尤其适合同时推进多个不同项目时。
+人只需要看 `INDEX + 人类视图`, 就能够快速抓住项目的进行状态、历史记录、下一步要做的事，尤其适合同时推进多个不同项目。
 
-人只需要看 `INDEX + 人类视图`。
 
 ### [`/orchestration`](skills/orchestration/)
 
-> 规定项目里各个角色及职责
+> 规定项目里各agent的角色,分工和协调方式
 
-简单地说：user + 车头（可用的最强 model）+ workers。
+简单地说：**user + 车头（可用的最强 model）+ workers**。
 
-workers 在项目的不同阶段有不同职责：有后端代码民工（Implementation）、前端民工（Style），也有各种保证质量的角色（Review、QA……）。按经验来说，AI 写代码本身问题不大，但 review 代码压力很大。
+workers 在项目的不同阶段有不同职责：有后端代码民工（Implementation）、前端民工（Style），也有各种保证质量的角色（Review、QA……）。26年中旬的 AI 写代码本身问题不大，但 review 代码压力很大。
 
 按照这个编排运作起来，理想状态下，人可以不看 worker 的输出，一切压力和问题交给车头（Orchestrator）解决。看不懂就用 `/decode` 讲解。
 
-在这个架构下，在方向正确的前提下，人基本不需要看实现细节，但需要花费更多精力为 agent 提供多样性。只要你能想得出来的方面，agent 就能把洞补得无比结实。但不管用什么 prompt，目前 agent 都很难跳出局部最优。
+在这个架构下，在方向正确的前提下，人基本不需要看实现细节，但需要花费更多精力为 agent 提供多样性。只要你能想得出来的方面，agent 就能把洞补得无比结实。但不管用什么 prompt，目前 agent 都很难跳出局部最优。人还是要时时看着的。
 
 具体结构：
 
@@ -71,9 +69,10 @@ workers 在项目的不同阶段有不同职责：有后端代码民工（Implem
 >
 > 教 compact 后的 Orchestrator 如何调整交互方式，以最大化协作
 
-本质上，`user` 就算 coding 的时候也是个人，而不是一团信息或者程序。
+`user` 就算 coding 的时候也是个人，而不是一团信息或者程序。
 
-默认 compact 很容易把上下文压成信息摘要，丢失和人相关的信息。为了避免 compact 后协作效率下降，单独使用 `/handoff` skill 以保留协作相关信息。
+默认 compact 很容易把上下文压成信息摘要，丢失和 交互/思路 相关的信息。
+为了避免 compact 后协作效率下降，单独使用 `/handoff` skill 以保留协作相关信息。
 
 理想效果是让 Orchestrator 在 user 累时少问决策、多做执行；兴奋时趁热推进高创造性的工作；frustration 高时先解决 blocker，再谈方向。
 
