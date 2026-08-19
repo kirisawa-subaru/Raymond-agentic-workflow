@@ -15,11 +15,11 @@ Every rule in here exists because something actually went wrong without it. The 
 | Component | Role | Status |
 |---|---|---|
 | `track-project` | Executable planning memory: project cards with queryable frontmatter, dashboard views, resume-after-compact protocol | extraction pending |
-| `doc-setup` | Repo documentation lifecycle: structure, naming-as-lifecycle, authority chains | extraction pending |
+| `doc-setup` | Repo documentation lifecycle: structure, naming-as-lifecycle, authority chains | extracted — under review |
 | `orchestration` | Cross-model orchestration playbook: task decomposition, contract freezing, review gates, escalation boundaries, worker cognitive profiles | content surgery pending |
-| `batch-hook` | Hard gate for unattended batch execution: Stop-hook + sentinel + ledger predicate that refuses to let a session end mid-batch | extraction pending |
-| `handoff` | Pre-compact context capture: preserves what automatic compaction systematically loses | extraction pending |
-| `decode` | Rewrites dense agent reports into human-readable density | extraction pending |
+| `batch-hook` | Hard gate for unattended batch execution: Stop-hook + sentinel + ledger predicate that refuses to let a session end mid-batch | extracted — under review |
+| `handoff` | Pre-compact context capture: preserves what automatic compaction systematically loses | extracted — under review |
+| `decode` | Rewrites dense agent reports into human-readable density | extracted — under review |
 
 Together they cover the full lifecycle: **planning memory → doc discipline → dispatch discipline → execution hard gate → context continuity → report consumption.**
 
@@ -35,13 +35,28 @@ Together they cover the full lifecycle: **planning memory → doc discipline →
 
 ## Installation
 
-<!-- TODO: marketplace add instructions once published -->
+Plain skills, deliberately. No plugin manifest, no installer magic — clone and link the components you want:
 
-Planned distribution: Claude Code plugin via this repo's marketplace manifest, with manual `~/.claude/skills` installation as a documented fallback.
+```bash
+git clone <this-repo>
+ln -s "$(pwd)/agentic-workflow/skills/batch-hook" ~/.claude/skills/batch-hook
+# ...repeat for each component you want
+```
+
+`batch-hook` additionally needs its Stop hook registered once in `~/.claude/settings.json`; the snippet is in its SKILL.md.
+
+## What this authorizes — read before installing
+
+Everything here is plaintext markdown; there is no config engine. Each component states its authorizations in its own SKILL.md, **enabled by default**. To narrow one, edit the text. The full list:
+
+- `batch-hook` registers a **global Stop hook** that can refuse to end a session's turn while an armed batch ledger has unchecked items. Fail-open by design; disarm anytime by deleting the sentinel file.
+- `track-project` **commits planning-document changes** as part of its contract (scoped staging, project docs only).
+- `doc-setup` moves and renames files in `doc/` trees during audits — always as a proposed plan before executing.
+- `handoff` writes session-context files to `~/.claude/session-handoff/`, which may include verbatim quotes of your instructions and a candid read of your state during the session.
 
 ## Configuration
 
-See [docs/CONFIGURATION.md](docs/CONFIGURATION.md). Machine-specific locations (e.g. your planning-vault root) are supplied via environment variables or first-run setup; nothing in this repo hardcodes a path outside `${CLAUDE_PLUGIN_ROOT}`.
+See [docs/CONFIGURATION.md](docs/CONFIGURATION.md). Skills reference their own bundled files relative to the skill directory. Machine-specific locations (e.g. your planning-vault root) are supplied via environment variables declared there; nothing in this repo hardcodes a personal path.
 
 ## Provenance
 
