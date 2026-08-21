@@ -4,7 +4,7 @@
 
 纯 Markdown 文档 + 薄脚本，脚本可使用本地 agent 重新编写以适配环境。
 
-安装到 `.claude`、`.codex` 等 agent 目录中即可使用，**推荐成套使用**。
+安装到 `.claude`、`.codex` 等 agent 目录中即可使用。**不必成套**：先读 [guide.md](guide.md) 定位你在哪一层、该装哪几件，再把 [guide.agent.md](guide.agent.md) 交给你的 agent 完成安装与配置。按症状升级，不按野心升级。
 
 内有部分项目或文件路径内联。强烈建议第一次运行时先用 `/workflow-setup` 进行配置，将本机目录写入 skill 中，方便 agent 使用。
 
