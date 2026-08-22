@@ -4,20 +4,30 @@
 
 纯 Markdown 文档 + 薄脚本，脚本可使用本地 agent 重新编写以适配环境。
 
-安装到 `.claude`、`.codex` 等 agent 目录中即可使用。**不必成套**：先读 [guide.md](guide.md) 定位你在哪一层、该装哪几件，再把 [guide.agent.md](guide.agent.md) 交给你的 agent 完成安装与配置。按症状升级，不按野心升级。
 
-内有部分项目或文件路径内联。强烈建议第一次运行时先用 `/workflow-setup` 进行配置，将本机目录写入 skill 中，方便 agent 使用。
+| 遇到的问题……               | 跳转                            |
+| ----------------------- | ----------------------------- |
+| agent 报告黑话太多读不动           | [`/decode`](skills/decode/)                    |
+| 换窗口 / compact 后model降智   | [`/track-project`](skills/track-project/) + [`/handoff`](skills/handoff/) |
+| 乱七八糟文档堆在一起       | [`/doc-setup`](skills/doc-setup/)                  |
+| agent 输出 review 不过来 | [`/orchestration`](skills/orchestration/)              |
+| 跑长任务 agent 半路停工             | [`/batch-hook`](skills/batch-hook/)                 |
 
-### 通常使用流程
 
-#### 立项时
+安装到 `.claude`、`.codex` 等 agent 目录中即可使用。**不必成套**：先读 [guide.md](guide.md) 定位，再把 [guide.agent.md](guide.agent.md) 交给你的 agent 按需要完成安装与配置。 
+
+内有部分项目或文件路径内联。强烈建议第一次运行时先用 `/workflow-setup` 进行配置，将本机目录写入 skill 中，提高 agent 调用效率。
+
+## 通常使用流程
+
+### 立项时
 
 ```mermaid
 flowchart LR
     A["/track-project"] --> B["/doc-setup"] --> C["/orchestration"]
 ```
 
-#### 施工中
+### 施工中
 
 ```mermaid
 flowchart LR
